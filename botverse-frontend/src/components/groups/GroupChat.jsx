@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { socket } from '../../lib/socket';
 import { saveGroupMessage } from '../../lib/api';
 import { useChatStore } from '../../store/chatStore';
@@ -24,8 +24,10 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
 
   const botIds = group.bot_ids || [];
   
-  // Get all known bots from global state (so built-in, media and local bots work)
-  const allKnownBots = useChatStore(state => [...state.bots, ...state.mediaBots]);
+  // Two stable selectors — spreading inside a selector creates a new ref every render → infinite loop
+  const storeBots = useChatStore(state => state.bots);
+  const storeMediaBots = useChatStore(state => state.mediaBots);
+  const allKnownBots = useMemo(() => [...storeBots, ...storeMediaBots], [storeBots, storeMediaBots]);
 
   // ── Load real bot objects so we can @mention them properly ──
   useEffect(() => {
