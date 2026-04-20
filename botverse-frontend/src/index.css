@@ -1,0 +1,156 @@
+/* ─── GLOBAL RESET & TOKENS ───────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Colours */
+  --bg-base:       #0a0b14;
+  --bg-surface:    #0e1017;
+  --bg-elevated:   #13151f;
+  --bg-overlay:    #1c1f2e;
+  --bg-input:      #1a1d2b;
+  --border:        #1a1d2e;
+  --border-subtle: #12141d;
+
+  --text-primary:   #e8e8f0;
+  --text-secondary: #8888aa;
+  --text-muted:     #3a3a5a;
+  --text-placeholder: #2e2e48;
+
+  --accent:        #5ac8fa;
+  --accent-glow:   rgba(90, 200, 250, 0.25);
+
+  --green:  #22c55e;
+  --red:    #ef4444;
+  --yellow: #f59e0b;
+
+  /* Spacing */
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+  --radius-full: 999px;
+
+  /* Typography */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-base);
+
+  /* Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-overlay) transparent;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 4px; }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+button { cursor: pointer; font-family: inherit; }
+input, textarea { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ─── ANIMATIONS ──────────────────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes tydot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%           { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ─── UTILITY CLASSES ─────────────────────────────────────────────────────── */
+.fade-in    { animation: fadeIn 0.2s ease both; }
+.slide-up   { animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+.flex       { display: flex; }
+.flex-col   { flex-direction: column; }
+.flex-1     { flex: 1; }
+.items-center  { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2      { gap: 8px; }
+.gap-3      { gap: 12px; }
+.overflow-hidden { overflow: hidden; }
+.truncate   { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ─── MESSAGE BUBBLE TYPES ────────────────────────────────────────────────── */
+.msg-user {
+  background: linear-gradient(135deg, var(--bot-color, #5ac8fa) 0%, color-mix(in srgb, var(--bot-color, #5ac8fa) 80%, black) 100%);
+  border-radius: 16px 3px 16px 16px;
+}
+.msg-bot {
+  background: var(--bg-overlay);
+  border-radius: 3px 16px 16px 16px;
+}
+
+/* ─── SKELETON LOADING ────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-overlay) 25%, var(--bg-elevated) 50%, var(--bg-overlay) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── MODAL BACKDROP ──────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-sheet {
+  background: var(--bg-elevated);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 520px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+/* ─── SCROLLABLE CONTAINER ────────────────────────────────────────────────── */
+.scroll-y {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
