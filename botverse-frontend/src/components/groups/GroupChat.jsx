@@ -5,6 +5,8 @@ import { useChatStore } from '../../store/chatStore';
 import { parseGenerativeUI } from '../../lib/uiParser';
 import AdaptiveUI from '../chat/ui/AdaptiveUI';
 import ArtifactViewer from '../chat/ui/ArtifactViewer';
+import YouTubeRoom from '../media/YouTubeRoom';
+import SpotifyRoom from '../media/SpotifyRoom';
 
 function getTime() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -15,14 +17,15 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
   const [input, setInput] = useState('');
   const [members, setMembers] = useState([]);
   const [typingBot, setTypingBot] = useState(null);
-  const [botObjects, setBotObjects] = useState([]); // full bot metadata objects
+  const [botObjects, setBotObjects] = useState([]);
+  const [activeMedia, setActiveMedia] = useState(null); // 'youtube' | 'spotify'
   const endRef = useRef(null);
   const inputRef = useRef(null);
 
   const botIds = group.bot_ids || [];
   
-  // Get all known bots from global state (so built-in and local bots work)
-  const allKnownBots = useChatStore(state => state.bots);
+  // Get all known bots from global state (so built-in, media and local bots work)
+  const allKnownBots = useChatStore(state => [...state.bots, ...state.mediaBots]);
 
   // ── Load real bot objects so we can @mention them properly ──
   useEffect(() => {
@@ -173,7 +176,7 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)', position: 'relative' }}>
       {/* Header */}
       <div style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-subtle)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 28, lineHeight: 1 }}>‹</button>
@@ -199,22 +202,37 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
         )}
       </div>
 
-      {/* Bot list hint — show real bot names now */}
+      {/* Bot list hint */}
       {botIds.length > 0 && (
         <div style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--border-subtle)', padding: '6px 14px', display: 'flex', gap: 8, alignItems: 'center', overflowX: 'auto', flexShrink: 0 }}>
           <span style={{ color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, flexShrink: 0 }}>BOTS:</span>
-          {botObjects.length > 0 ? botObjects.map((bot) => (
-            <button
-              key={bot.id}
-              onClick={() => setInput(v => v + `@${bot.name} `)}
-              style={{ background: `${bot.color || '#6C63FF'}22`, border: `1px solid ${bot.color || '#6C63FF'}66`, borderRadius: 20, padding: '3px 10px', color: bot.color || 'var(--accent)', fontSize: 12, flexShrink: 0, cursor: 'pointer', fontWeight: 600 }}
-            >
-              {bot.emoji} @{bot.name}
-            </button>
-          )) : botIds.map((bid, i) => (
+          {botObjects.length > 0 ? botObjects.map((bot) => {
+            const isMedia = bot.type === 'youtube' || bot.type === 'spotify';
+            return (
+              <button
+                key={bot.id}
+                onClick={() => isMedia ? setActiveMedia(bot.type) : setInput(v => v + `@${bot.name} `)}
+                style={{ background: `${bot.color || '#6C63FF'}22`, border: `1px solid ${bot.color || '#6C63FF'}66`, borderRadius: 20, padding: '3px 10px', color: bot.color || 'var(--accent)', fontSize: 12, flexShrink: 0, cursor: 'pointer', fontWeight: 600 }}
+              >
+                {bot.emoji} {isMedia ? `Open ${bot.name}` : `@${bot.name}`}
+              </button>
+            );
+          }) : botIds.map((bid, i) => (
             <span key={i} style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)', borderRadius: 20, padding: '3px 10px', color: 'var(--text-secondary)', fontSize: 12, flexShrink: 0 }}>@{bid}</span>
           ))}
           <span style={{ color: 'var(--text-muted)', fontSize: 11, flexShrink: 0 }}>· tap a bot name to mention</span>
+        </div>
+      )}
+
+      {/* Media room overlay */}
+      {activeMedia === 'youtube' && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
+          <YouTubeRoom onBack={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
+        </div>
+      )}
+      {activeMedia === 'spotify' && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
+          <SpotifyRoom onBack={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
         </div>
       )}
 

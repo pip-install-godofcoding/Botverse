@@ -4,7 +4,7 @@ import { useChatStore } from '../../store/chatStore';
 
 const EMOJIS = ['💬', '🎌', '🎬', '💃', '🎮', '🏀', '🎵', '📚', '🌏', '🔥', '💫', '⚡'];
 
-export default function CreateGroupModal({ onClose, onCreated, userId, bots }) {
+export default function CreateGroupModal({ onClose, onCreated, userId, bots, mediaBots = [] }) {
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('💬');
   const [selectedBots, setSelectedBots] = useState([]);
@@ -34,7 +34,8 @@ export default function CreateGroupModal({ onClose, onCreated, userId, bots }) {
     setSaving(false);
   };
 
-  const charBots = bots.filter(b => b.type === 'character' || b.type === 'utility' || b.type === 'study');
+  const charBots = bots.filter(b => b.type === 'character' || b.type === 'utility' || b.type === 'study' || b.type === 'presentation' || b.type === 'mom' || b.type === 'custom' || b.tag === 'Custom');
+  const allBots = [...charBots, ...mediaBots.filter(b => b.type !== 'coming_soon')];
 
   return (
     <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -73,6 +74,11 @@ export default function CreateGroupModal({ onClose, onCreated, userId, bots }) {
 
           <div style={{ color: 'var(--text-muted)', fontSize: 11, fontWeight: 700, letterSpacing: 0.8, marginBottom: 10 }}>ADD BOTS (optional)</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
+
+            {/* Chat Bots section */}
+            {charBots.length > 0 && (
+              <div style={{ color: 'var(--text-placeholder)', fontSize: 10, fontWeight: 700, letterSpacing: 1, marginBottom: 4, marginTop: 4 }}>CHAT BOTS</div>
+            )}
             {charBots.slice(0, 8).map(bot => {
               const selected = selectedBots.find(b => b.id === bot.id);
               return (
@@ -82,6 +88,25 @@ export default function CreateGroupModal({ onClose, onCreated, userId, bots }) {
                   <div style={{ flex: 1 }}>
                     <div style={{ color: selected ? bot.color : 'var(--text-primary)', fontWeight: 600, fontSize: 14 }}>{bot.name}</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>#{bot.tag}</div>
+                  </div>
+                  {selected && <span style={{ color: bot.color, fontSize: 18 }}>✓</span>}
+                </button>
+              );
+            })}
+
+            {/* Media Rooms section */}
+            {mediaBots.filter(b => b.type !== 'coming_soon').length > 0 && (
+              <div style={{ color: 'var(--text-placeholder)', fontSize: 10, fontWeight: 700, letterSpacing: 1, marginBottom: 4, marginTop: 10 }}>MEDIA ROOMS</div>
+            )}
+            {mediaBots.filter(b => b.type !== 'coming_soon').map(bot => {
+              const selected = selectedBots.find(b => b.id === bot.id);
+              return (
+                <button key={bot.id} onClick={() => toggleBot(bot)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, border: `1px solid ${selected ? bot.color : 'var(--border)'}`, background: selected ? `${bot.color}15` : 'var(--bg-base)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
+                  <div style={{ width: 34, height: 34, borderRadius: '50%', background: `linear-gradient(135deg, ${bot.color}cc, ${bot.color}44)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{bot.emoji}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: selected ? bot.color : 'var(--text-primary)', fontWeight: 600, fontSize: 14 }}>{bot.name}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>{bot.description || `#${bot.tag}`}</div>
                   </div>
                   {selected && <span style={{ color: bot.color, fontSize: 18 }}>✓</span>}
                 </button>

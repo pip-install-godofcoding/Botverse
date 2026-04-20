@@ -162,10 +162,11 @@ export default function YouTubeRoom({ onBack, userId, displayName }) {
               {videoId ? (
                 <iframe
                   ref={iframeRef}
-                  src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1`}
+                  src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1`}
                   style={{ width: '100%', height: '100%', border: 'none' }}
-                  allow="autoplay; fullscreen"
+                  allow="autoplay; fullscreen; picture-in-picture"
                   allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
                 />
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0d0e14', color: 'var(--text-muted)', gap: 12 }}>

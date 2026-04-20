@@ -248,6 +248,7 @@ export default function Main() {
           onCreated={group => { addGroup(group); setShowCreateGroup(false); }}
           userId={user?.id}
           bots={bots}
+          mediaBots={mediaBots}
         />
       )}
     </div>
