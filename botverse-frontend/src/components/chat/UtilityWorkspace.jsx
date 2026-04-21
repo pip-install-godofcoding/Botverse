@@ -79,10 +79,10 @@ export default function UtilityWorkspace({ bot, onBack, userId, displayName }) {
   const botColor = bot.color || '#6C63FF';
 
   return (
-    <div style={{ display: 'flex', width: '100vw', height: '100vh', background: '#050912', overflow: 'hidden' }}>
+    <div className="workspace-container" style={{ display: 'flex', width: '100vw', height: '100vh', background: '#050912', overflow: 'hidden' }}>
 
       {/* LEFT PANEL: Chat */}
-      <div style={{ flex: '0 0 38%', minWidth: 300, maxWidth: 420, borderRight: `1px solid ${botColor}33`, display: 'flex', flexDirection: 'column' }}>
+      <div className="workspace-chat" style={{ flex: '0 0 38%', minWidth: 300, maxWidth: 420, borderRight: `1px solid ${botColor}33`, display: 'flex', flexDirection: 'column' }}>
         <CharacterChat
           bot={bot}
           onBack={onBack}
@@ -94,7 +94,7 @@ export default function UtilityWorkspace({ bot, onBack, userId, displayName }) {
       </div>
 
       {/* RIGHT PANEL: Workspace */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="workspace-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
         {/* Tool Tab Bar */}
         {tools.length > 0 && (

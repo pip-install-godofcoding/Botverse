@@ -9,17 +9,24 @@ export const useAuthStore = create((set, get) => ({
 
   init: async () => {
     try {
-      // Check existing session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        set({ session, user: session.user, loading: false });
-        socket.connect();
+      // Prevent flashing login screen on mobile if we just returned from OAuth redirect
+      if (window.location.hash.includes('access_token=')) {
+        console.log('OAuth redirect detected, waiting for session...');
+        // Let onAuthStateChange handle it, keep loading=true
       } else {
-        set({ loading: false });
+        // Check existing session normally
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          set({ session, user: session.user, loading: false });
+          socket.connect();
+        } else {
+          set({ loading: false });
+        }
       }
 
       // Listen for auth changes
-      supabase.auth.onAuthStateChange((_event, session) => {
+      supabase.auth.onAuthStateChange((event, session) => {
+        set({ session, user: session?.user || null, loading: false });
         set({ session, user: session?.user || null });
         if (session) {
           socket.connect();

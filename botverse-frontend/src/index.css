@@ -154,3 +154,29 @@ a { color: inherit; text-decoration: none; }
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+/* ─── MOBILE RESPONSIVENESS ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .workspace-container {
+    flex-direction: column !important;
+  }
+  .workspace-chat {
+    flex: 1 !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+  .workspace-panel {
+    flex: 1 !important;
+    max-width: 100% !important;
+  }
+  
+  /* Make modal sheets take up more space on mobile */
+  .modal-sheet {
+    max-width: 100%;
+    margin-top: 10px;
+    height: 96vh;
+    max-height: 96vh;
+  }
+}
