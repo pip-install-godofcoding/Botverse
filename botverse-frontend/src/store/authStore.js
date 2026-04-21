@@ -9,53 +9,47 @@ export const useAuthStore = create((set, get) => ({
 
   init: async () => {
     try {
-      // Listen for auth changes first before checking session
-      supabase.auth.onAuthStateChange((event, session) => {
-        console.log('Auth state changed:', event, !!session);
-        set({ session, user: session?.user || null, loading: false });
-        if (session) {
-          socket.connect();
-        } else {
-          socket.disconnect();
-        }
-      });
-
       const params = new URLSearchParams(window.location.search);
       const isOAuthRedirect = window.location.hash.includes('access_token=') || params.has('code');
 
-      if (isOAuthRedirect) {
-        console.log('OAuth redirect detected, attempting session exchange...');
-      }
-
-      // Check existing session (and auto-exchange PKCE if ?code= is present)
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Supabase getSession error:', error.message);
-        if (isOAuthRedirect) {
-          alert('Login failed during redirect: ' + error.message);
+      // 1. Setup the listener FIRST. Supabase processes URL hashes/PKCE asynchronously.
+      // When it successfully parses the token from the URL, it will fire SIGNED_IN.
+      supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth event:', event, !!session);
+        if (session) {
+          set({ session, user: session.user, loading: false });
+          socket.connect();
+          
+          // Clean up the ugly token from the URL bar
+          if (isOAuthRedirect) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } else if (event === 'INITIAL_SESSION' && !isOAuthRedirect) {
+          // If there's no redirect token and no session, we can safely stop loading
+          set({ loading: false });
         }
-      }
+      });
 
-      if (session) {
-        set({ session, user: session.user, loading: false });
-        socket.connect();
-        
-        // Clean up URL if needed
-        if (isOAuthRedirect) {
-          window.history.replaceState({}, document.title, window.location.pathname);
+      // 2. If it's NOT an oauth redirect, manually check session to handle returning users
+      if (!isOAuthRedirect) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          set({ loading: false });
         }
       } else {
-        // Only stop loading if we definitely have no session
-        set({ loading: false });
-        if (isOAuthRedirect && !error) {
-           alert('Login redirect failed: Missing session context (third-party cookies/storage likely blocked).');
-        }
+        // 3. If it IS an oauth redirect, patiently wait for the onAuthStateChange listener to catch the parsed token.
+        // If 4 seconds pass and it still hasn't parsed, something actually failed (e.g. cookies blocked)
+        setTimeout(() => {
+          const state = get();
+          if (state.loading) {
+            console.error('OAuth token parsing timed out.');
+            set({ loading: false });
+          }
+        }, 4000);
       }
 
     } catch (err) {
       console.warn('Supabase auth init failed:', err);
-      alert('Initialization error: ' + err.message);
       set({ loading: false });
     }
   },
