@@ -152,9 +152,9 @@ export default function YouTubeRoom({ onBack, userId, displayName }) {
         </button>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div className="workspace-container" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Main area */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <div className="workspace-chat" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
 
           {/* Video */}
           <div style={{ background: '#000', position: 'relative', width: '100%', flexShrink: 0 }}>
@@ -250,7 +250,7 @@ export default function YouTubeRoom({ onBack, userId, displayName }) {
 
         {/* Chat sidebar */}
         {showChat && (
-          <div style={{ width: 240, background: '#0e0f18', borderLeft: '1px solid #1a1a25', display: 'flex', flexDirection: 'column' }}>
+          <div className="workspace-panel" style={{ width: 240, background: '#0e0f18', borderLeft: '1px solid #1a1a25', display: 'flex', flexDirection: 'column' }}>
             {/* Members */}
             <div style={{ padding: '8px 10px', borderBottom: '1px solid #1a1a25', display: 'flex', gap: 6, alignItems: 'center' }}>
               <span style={{ color: 'var(--text-muted)', fontSize: 11, fontWeight: 700, letterSpacing: 0.5 }}>WATCHING</span>
