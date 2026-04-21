@@ -12,23 +12,44 @@ export const useAuthStore = create((set, get) => ({
       const params = new URLSearchParams(window.location.search);
       const isOAuthRedirect = window.location.hash.includes('access_token=') || params.has('code');
 
-      // 1. Setup the listener FIRST. Supabase processes URL hashes/PKCE asynchronously.
-      // When it successfully parses the token from the URL, it will fire SIGNED_IN.
+      // 1. Setup the listener FIRST.
       supabase.auth.onAuthStateChange((event, session) => {
-        console.log('Auth event:', event, !!session);
         if (session) {
           set({ session, user: session.user, loading: false });
           socket.connect();
-          
-          // Clean up the ugly token from the URL bar
-          if (isOAuthRedirect) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-          }
         } else if (event === 'INITIAL_SESSION' && !isOAuthRedirect) {
-          // If there's no redirect token and no session, we can safely stop loading
           set({ loading: false });
         }
       });
+
+      // 2. Manual brute-force URL parsing for mobile browsers that drop auto-detection context
+      if (window.location.hash.includes('access_token=')) {
+        try {
+          const hashStr = window.location.hash.substring(1); // remove '#'
+          const hashParams = new URLSearchParams(hashStr);
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
+
+          if (accessToken && refreshToken) {
+            console.log('Manually injecting session from hash tokens...');
+            const { data, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            
+            if (!error && data?.session) {
+              set({ session: data.session, user: data.session.user, loading: false });
+              socket.connect();
+              window.history.replaceState({}, document.title, window.location.pathname);
+              return; // Successfully bypassed!
+            } else {
+              console.error('Manual token injection failed:', error);
+            }
+          }
+        } catch (err) {
+          console.error('Error during manual token extraction:', err);
+        }
+      }
 
       // 2. If it's NOT an oauth redirect, manually check session to handle returning users
       if (!isOAuthRedirect) {
