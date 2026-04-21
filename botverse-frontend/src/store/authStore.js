@@ -9,33 +9,53 @@ export const useAuthStore = create((set, get) => ({
 
   init: async () => {
     try {
-      // Prevent flashing login screen on mobile if we just returned from OAuth redirect
-      if (window.location.hash.includes('access_token=')) {
-        console.log('OAuth redirect detected, waiting for session...');
-        // Let onAuthStateChange handle it, keep loading=true
-      } else {
-        // Check existing session normally
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          set({ session, user: session.user, loading: false });
-          socket.connect();
-        } else {
-          set({ loading: false });
-        }
-      }
-
-      // Listen for auth changes
+      // Listen for auth changes first before checking session
       supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event, !!session);
         set({ session, user: session?.user || null, loading: false });
-        set({ session, user: session?.user || null });
         if (session) {
           socket.connect();
         } else {
           socket.disconnect();
         }
       });
+
+      const params = new URLSearchParams(window.location.search);
+      const isOAuthRedirect = window.location.hash.includes('access_token=') || params.has('code');
+
+      if (isOAuthRedirect) {
+        console.log('OAuth redirect detected, attempting session exchange...');
+      }
+
+      // Check existing session (and auto-exchange PKCE if ?code= is present)
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Supabase getSession error:', error.message);
+        if (isOAuthRedirect) {
+          alert('Login failed during redirect: ' + error.message);
+        }
+      }
+
+      if (session) {
+        set({ session, user: session.user, loading: false });
+        socket.connect();
+        
+        // Clean up URL if needed
+        if (isOAuthRedirect) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } else {
+        // Only stop loading if we definitely have no session
+        set({ loading: false });
+        if (isOAuthRedirect && !error) {
+           alert('Login redirect failed: Missing session context (third-party cookies/storage likely blocked).');
+        }
+      }
+
     } catch (err) {
-      console.warn('Supabase auth init failed (likely running in demo mode without valid keys):', err);
+      console.warn('Supabase auth init failed:', err);
+      alert('Initialization error: ' + err.message);
       set({ loading: false });
     }
   },
