@@ -1,0 +1,8 @@
+{
+  "name": "botverse-deployment",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd botverse-backend && npm install",
+    "start": "cd botverse-backend && npm start"
+  }
+}
