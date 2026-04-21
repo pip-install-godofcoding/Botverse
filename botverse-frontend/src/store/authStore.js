@@ -30,20 +30,39 @@ export const useAuthStore = create((set, get) => ({
           const accessToken = hashParams.get('access_token');
           const refreshToken = hashParams.get('refresh_token');
 
-          if (accessToken && refreshToken) {
-            console.log('Manually injecting session from hash tokens...');
-            const { data, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-            
-            if (!error && data?.session) {
-              set({ session: data.session, user: data.session.user, loading: false });
+          if (accessToken) {
+            console.log('Manually injecting session and decoding JWT...');
+            try {
+              // Decode JWT Payload
+              const base64Url = accessToken.split('.')[1];
+              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+              const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                  return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+              }).join(''));
+              const payload = JSON.parse(jsonPayload);
+
+              const user = {
+                id: payload.sub,
+                email: payload.email,
+                user_metadata: payload.user_metadata || {},
+              };
+              
+              set({ 
+                session: { access_token: accessToken, refresh_token: refreshToken, user }, 
+                user, 
+                loading: false 
+              });
+              
               socket.connect();
               window.history.replaceState({}, document.title, window.location.pathname);
-              return; // Successfully bypassed!
-            } else {
-              console.error('Manual token injection failed:', error);
+              
+              // Tell Supabase to sync up silently in the background
+              if (refreshToken) {
+                 supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).catch(() => {});
+              }
+              return; // Bypassed successfully!
+            } catch (err) {
+              console.error('Manual JWT decode failed:', err);
             }
           }
         } catch (err) {
