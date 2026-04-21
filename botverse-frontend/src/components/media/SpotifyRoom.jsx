@@ -126,20 +126,20 @@ export default function SpotifyRoom({ onBack, userId, displayName }) {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#050e07' }}>
+    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#050e07' }}>
       {/* Header */}
-      <div style={{ background: '#0a1a0d', borderBottom: '1px solid #0f2212', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#fa243c', fontSize: 28, lineHeight: 1 }}>‹</button>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#fa243c33', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🎵</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: 15 }}>Listen Together (Apple Music)</div>
-          <div style={{ color: '#fa243c', fontSize: 11 }}>● {members.length || 1} listening</div>
+      <div style={{ background: '#0a1a0d', borderBottom: '1px solid #0f2212', padding: '10px 10px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#fa243c', fontSize: 26, lineHeight: 1, paddingRight: 4 }}>‹</button>
+        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#fa243c33', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>🎵</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Listen Together</div>
+          <div style={{ color: '#fa243c', fontSize: 10 }}>● {members.length || 1} listening</div>
         </div>
         <button
           onClick={() => setShowSearch(v => !v)}
-          style={{ background: showSearch ? '#fa243c33' : 'var(--bg-overlay)', border: 'none', color: showSearch ? '#fa243c' : 'var(--text-secondary)', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+          style={{ background: showSearch ? '#fa243c33' : 'var(--bg-overlay)', border: 'none', color: showSearch ? '#fa243c' : 'var(--text-secondary)', borderRadius: 8, padding: '6px 10px', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}
         >
-          🔍 Search
+          🔍
         </button>
       </div>
 

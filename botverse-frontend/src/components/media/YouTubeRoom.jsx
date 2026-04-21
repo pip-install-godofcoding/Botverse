@@ -129,26 +129,26 @@ export default function YouTubeRoom({ onBack, userId, displayName }) {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#0a0b0f' }}>
+    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#0a0b0f' }}>
       {/* Header */}
-      <div style={{ background: '#111218', borderBottom: '1px solid #1a1a25', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#FF4444', fontSize: 28, lineHeight: 1 }}>‹</button>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#FF000033', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>▶️</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: 15 }}>Watch Together</div>
-          <div style={{ color: 'var(--green)', fontSize: 11 }}>● {members.length || 1} watching</div>
+      <div style={{ background: '#111218', borderBottom: '1px solid #1a1a25', padding: '10px 10px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#FF4444', fontSize: 26, lineHeight: 1, paddingRight: 4 }}>‹</button>
+        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#FF000033', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>▶️</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Watch Together</div>
+          <div style={{ color: 'var(--green)', fontSize: 10 }}>● {members.length || 1} watching</div>
         </div>
         <button
           onClick={() => setShowSearch(v => !v)}
-          style={{ background: showSearch ? '#FF000033' : 'var(--bg-overlay)', border: 'none', color: showSearch ? '#FF4444' : 'var(--text-secondary)', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+          style={{ background: showSearch ? '#FF000033' : 'var(--bg-overlay)', border: 'none', color: showSearch ? '#FF4444' : 'var(--text-secondary)', borderRadius: 8, padding: '6px 10px', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}
         >
-          🔍 Search
+          🔍
         </button>
         <button
           onClick={() => setShowChat(v => !v)}
-          style={{ background: 'var(--bg-overlay)', border: 'none', color: showChat ? 'var(--accent)' : 'var(--text-muted)', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+           style={{ background: 'var(--bg-overlay)', border: 'none', color: showChat ? 'var(--accent)' : 'var(--text-muted)', borderRadius: 8, padding: '6px 10px', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}
         >
-          💬 Chat
+          💬
         </button>
       </div>
 
