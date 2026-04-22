@@ -70,7 +70,7 @@ registerListenRoom(io);
 registerChatRoom(io);
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`\n🤖 BotVerse backend running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🤖 BotVerse backend running on port ${PORT} (0.0.0.0)`);
   console.log(`   Socket.io ready for real-time sync\n`);
 });
