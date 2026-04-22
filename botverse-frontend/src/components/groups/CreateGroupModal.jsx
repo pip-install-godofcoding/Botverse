@@ -21,6 +21,13 @@ export default function CreateGroupModal({ onClose, onCreated, userId, bots, med
 
   const handleCreate = async () => {
     if (!name) return;
+    
+    // Prevent Demo users from crashing the backend UUID constraint
+    if (!userId || userId.startsWith('demo-')) {
+      setError('You must sign in with a real account to create groups!');
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await createGroup({
