@@ -117,7 +117,7 @@ begin
   drop policy if exists "Users can manage own bots" on public.bots;
   drop policy if exists "Users can read own messages" on public.messages;
   drop policy if exists "Users can insert messages" on public.messages;
-  drop policy if exists "Group members can view groups" on public.groups;
+  drop policy if exists "Anyone can view groups" on public.groups;
   drop policy if exists "Users can create groups" on public.groups;
   drop policy if exists "Public user profiles" on public.users;
   drop policy if exists "Users can update own profile" on public.users;
@@ -146,11 +146,9 @@ create policy "Users can read own messages" on public.messages
 create policy "Users can insert messages" on public.messages
   for insert with check (user_id = auth.uid());
 
--- Groups: users can see groups they're in
-create policy "Group members can view groups" on public.groups
-  for select using (id in (
-    select group_id from public.group_members where user_id = auth.uid()
-  ));
+-- Groups: anyone logged in can view groups (needed so you can find a group by invite code before joining)
+create policy "Anyone can view groups" on public.groups
+  for select using (auth.uid() is not null);
 
 create policy "Users can create groups" on public.groups
   for insert with check (auth.uid() is not null);
