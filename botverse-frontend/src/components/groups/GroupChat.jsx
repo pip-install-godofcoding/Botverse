@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { socket } from '../../lib/socket';
-import { saveGroupMessage } from '../../lib/api';
+import { saveGroupMessageDirect } from '../../lib/supabaseGroups';
 import { useChatStore } from '../../store/chatStore';
 import { parseGenerativeUI } from '../../lib/uiParser';
 import AdaptiveUI from '../chat/ui/AdaptiveUI';
@@ -107,7 +107,7 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
 
     // Persist to DB
     if (userId) {
-      saveGroupMessage(group.id, { user_id: userId, content: text, role: 'user', display_name: displayName }).catch(() => {});
+      saveGroupMessageDirect(group.id, { user_id: userId, content: text, role: 'user', display_name: displayName }).catch(() => {});
     }
   };
 

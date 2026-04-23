@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useChatStore } from '../../store/chatStore';
-import { fetchGroups, joinGroup } from '../../lib/api';
+import { fetchGroupsDirect, joinGroupDirect } from '../../lib/supabaseGroups';
 
 export default function GroupList({ search, onOpenGroup, onCreateGroup, userId }) {
   const { groups, setGroups, addGroup } = useChatStore();
@@ -19,7 +19,7 @@ export default function GroupList({ search, onOpenGroup, onCreateGroup, userId }
     console.log('[GroupList] Fetching groups for userId:', userId);
     setLoading(true);
     setError('');
-    fetchGroups(userId)
+    fetchGroupsDirect(userId)
       .then(({ groups: g }) => {
         console.log('[GroupList] Got groups:', g);
         setGroups(g || []);
@@ -38,7 +38,7 @@ export default function GroupList({ search, onOpenGroup, onCreateGroup, userId }
     setJoining(true);
     setJoinError('');
     try {
-      const { group } = await joinGroup(joinCode.trim().toUpperCase(), userId);
+      const { group } = await joinGroupDirect(joinCode.trim().toUpperCase(), userId);
       addGroup(group);
       setJoinCode('');
       setShowJoin(false);

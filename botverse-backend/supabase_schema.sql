@@ -121,6 +121,8 @@ begin
   drop policy if exists "Users can create groups" on public.groups;
   drop policy if exists "Public user profiles" on public.users;
   drop policy if exists "Users can update own profile" on public.users;
+  drop policy if exists "Users can join groups" on public.group_members;
+  drop policy if exists "Group members can view members" on public.group_members;
 end $$;
 
 -- Allow all authenticated users to read public bots
@@ -159,6 +161,16 @@ create policy "Public user profiles" on public.users
 
 create policy "Users can update own profile" on public.users
   for update using (id = auth.uid());
+
+-- Group members: users can insert themselves into a group
+create policy "Users can join groups" on public.group_members
+  for insert with check (user_id = auth.uid());
+
+-- Group members: users can see members of groups they belong to
+create policy "Group members can view members" on public.group_members
+  for select using (user_id = auth.uid() or group_id in (
+    select group_id from public.group_members where user_id = auth.uid()
+  ));
 
 -- NOTE: The backend uses service_role key which bypasses RLS
 -- So backend operations work even with strict RLS policies above

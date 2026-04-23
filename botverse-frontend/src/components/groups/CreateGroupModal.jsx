@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createGroup } from '../../lib/api';
+import { createGroupDirect } from '../../lib/supabaseGroups';
 import { useChatStore } from '../../store/chatStore';
 
 const EMOJIS = ['💬', '🎌', '🎬', '💃', '🎮', '🏀', '🎵', '📚', '🌏', '🔥', '💫', '⚡'];
@@ -30,7 +30,7 @@ export default function CreateGroupModal({ onClose, onCreated, userId, bots, med
 
     setSaving(true);
     try {
-      const res = await createGroup({
+      const res = await createGroupDirect({
         name, emoji, creator_id: userId,
         bot_ids: selectedBots.map(b => b.id),
       });
