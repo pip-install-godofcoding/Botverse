@@ -153,7 +153,7 @@ create policy "Group members can view groups" on public.groups
   ));
 
 create policy "Users can create groups" on public.groups
-  for insert with check (creator_id = auth.uid());
+  for insert with check (auth.uid() is not null);
 
 -- Users table
 create policy "Public user profiles" on public.users
