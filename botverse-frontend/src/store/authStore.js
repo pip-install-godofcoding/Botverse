@@ -56,9 +56,27 @@ export const useAuthStore = create((set, get) => ({
               socket.connect();
               window.history.replaceState({}, document.title, window.location.pathname);
               
-              // Tell Supabase to sync up silently in the background
+              // Manually save session to localStorage in Supabase v2 format
+              // This ensures getUserJWT() finds the token for direct REST API calls
+              try {
+                const PROJECT_REF = 'hrnazgyaxmnzhaniwjaj';
+                const sessionData = {
+                  access_token: accessToken,
+                  refresh_token: refreshToken || '',
+                  token_type: 'bearer',
+                  expires_in: 3600,
+                  expires_at: Math.floor(Date.now() / 1000) + 3600,
+                  user,
+                };
+                localStorage.setItem(`sb-${PROJECT_REF}-auth-token`, JSON.stringify(sessionData));
+                console.log('Saved session to localStorage manually.');
+              } catch (storageErr) {
+                console.warn('Could not save to localStorage:', storageErr);
+              }
+
+              // Also tell Supabase to sync up
               if (refreshToken) {
-                 supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).catch(() => {});
+                supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).catch(() => {});
               }
               return; // Bypassed successfully!
             } catch (err) {

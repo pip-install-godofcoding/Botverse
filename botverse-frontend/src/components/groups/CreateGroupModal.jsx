@@ -36,7 +36,7 @@ export default function CreateGroupModal({ onClose, onCreated, userId, bots, med
       });
       onCreated(res.group);
     } catch (err) {
-      setError('Could not create group. Are you signed in?');
+      setError(err.message || 'Could not create group. Check console for details.');
     }
     setSaving(false);
   };
