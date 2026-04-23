@@ -226,19 +226,19 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
         </div>
       )}
 
-      {/* Media room overlay */}
+      {/* Media room embed (Top section) */}
       {activeMedia === 'youtube' && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
-          <YouTubeRoom onBack={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
+        <div style={{ flexShrink: 0, width: '100%', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+          <YouTubeRoom groupId={group.id} onClose={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
         </div>
       )}
       {activeMedia === 'spotify' && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
-          <SpotifyRoom onBack={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
+        <div style={{ flexShrink: 0, width: '100%', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+          <SpotifyRoom groupId={group.id} onClose={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
         </div>
       )}
 
-      {/* Messages */}
+      {/* Messages (Bottom section, scrolls independently) */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px 6px', display: 'flex', flexDirection: 'column', gap: 2 }}>
         {messages.map((msg, i) => <MsgBubble key={msg.id || i} msg={msg} />)}
 
