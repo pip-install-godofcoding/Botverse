@@ -5,7 +5,7 @@ import { createBot } from '../lib/api';
 import CharacterChat from '../components/chat/CharacterChat';
 import ArtifactViewer from '../components/chat/ui/ArtifactViewer';
 
-const BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const BASE = import.meta.env.VITE_BACKEND_URL || 'https://botverse-production.up.railway.app';
 
 const ALL_TOOLS = [
   { id: 'smartboard',   label: '🎨 Smart Board' },

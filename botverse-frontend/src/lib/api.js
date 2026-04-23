@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const BASE = import.meta.env.VITE_BACKEND_URL || 'https://botverse-production.up.railway.app';
 
 const api = axios.create({ baseURL: BASE });
 
