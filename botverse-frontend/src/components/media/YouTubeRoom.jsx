@@ -223,7 +223,7 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
       setSearching(true);
       try {
         const { results } = await searchYouTube(q);
-        setSearchResults(results);
+        setSearchResults(results || []);
       } catch {
         setSearchResults([]);
       }
