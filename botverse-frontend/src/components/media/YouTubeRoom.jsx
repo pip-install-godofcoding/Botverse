@@ -270,8 +270,8 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
           </div>
         </div>
       )}
-      {/* Video Area (16:9) */}
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#000' }}>
+      {/* Video Area */}
+      <div style={{ position: 'relative', width: '100%', background: '#000', flex: isStandalone ? 1 : 'none', aspectRatio: isStandalone ? 'auto' : '16/9', display: 'flex', flexDirection: 'column' }}>
         {/* Controls Overlay */}
         <div style={{ position: 'absolute', top: 10, left: 10, right: 10, zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           {/* Members badge */}
@@ -301,9 +301,9 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
         </div>
 
         {videoId ? (
-          <div ref={playerContainerRef} style={{ width: '100%', height: '100%' }} />
+          <div ref={playerContainerRef} style={{ width: '100%', flex: 1, minHeight: 0 }} />
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+          <div style={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
             <div style={{ fontSize: 52, marginBottom: 12, filter: 'drop-shadow(0 0 20px rgba(255,0,0,0.4))' }}>▶️</div>
             <div style={{ fontSize: 16, fontWeight: 600, color: '#fff', marginBottom: 4 }}>Watch Together</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Search or paste a YouTube link to start watching with friends</div>
