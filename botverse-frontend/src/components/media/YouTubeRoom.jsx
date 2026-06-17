@@ -258,7 +258,7 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
   const isStandalone = !groupId; // When opened from Chats tab (not inside a group)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', background: '#0a0b0f', borderBottom: '1px solid var(--border-subtle)', ...(isStandalone ? { height: '100vh' } : {}) }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: isStandalone ? '100vh' : '100%', background: '#0a0b0f', borderBottom: '1px solid var(--border-subtle)', overflow: 'hidden' }}>
       {/* Standalone header with back button */}
       {isStandalone && (
         <div style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-subtle)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
@@ -271,7 +271,7 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
         </div>
       )}
       {/* Video Area */}
-      <div style={{ position: 'relative', width: '100%', background: '#000', flex: isStandalone ? 1 : 'none', aspectRatio: isStandalone ? 'auto' : '16/9', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'relative', width: '100%', background: '#000', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         {/* Controls Overlay */}
         <div style={{ position: 'absolute', top: 10, left: 10, right: 10, zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           {/* Members badge */}
