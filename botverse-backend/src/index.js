@@ -23,6 +23,7 @@ const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:3000',
   'https://botverse-mu.vercel.app',
+  'https://botverse-r3ex.onrender.com',
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
