@@ -20,7 +20,9 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
   'http://localhost:3000',
+  'https://botverse-mu.vercel.app',
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
@@ -29,6 +31,8 @@ const corsOptions = {
     // Allow requests with no origin (mobile apps, curl, etc)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Also allow any *.vercel.app or *.railway.app subdomain
+    if (/\.(vercel\.app|railway\.app)$/.test(origin)) return callback(null, true);
     callback(new Error(`CORS: Origin ${origin} not allowed`));
   },
   credentials: true,
@@ -36,7 +40,12 @@ const corsOptions = {
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (/\.(vercel\.app|railway\.app)$/.test(origin)) return callback(null, true);
+      callback(null, false);
+    },
     methods: ['GET', 'POST'],
     credentials: true,
   },
