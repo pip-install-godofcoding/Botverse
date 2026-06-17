@@ -7,6 +7,7 @@ import AdaptiveUI from '../chat/ui/AdaptiveUI';
 import ArtifactViewer from '../chat/ui/ArtifactViewer';
 import YouTubeRoom from '../media/YouTubeRoom';
 import SpotifyRoom from '../media/SpotifyRoom';
+import GroupSettingsModal from './GroupSettingsModal';
 
 function getTime() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -17,6 +18,7 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
   const [input, setInput] = useState('');
   const [members, setMembers] = useState([]);
   const [typingBot, setTypingBot] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
   const [botObjects, setBotObjects] = useState([]);
   const [activeMedia, setActiveMedia] = useState(null); // 'youtube' | 'spotify'
   const endRef = useRef(null);
@@ -192,16 +194,16 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
             {botIds.length > 0 && ` · ${botIds.length} bot${botIds.length > 1 ? 's' : ''}`}
           </div>
         </div>
-        {/* Invite code */}
-        {group.invite_code && (
-          <button
-            onClick={() => { navigator.clipboard.writeText(group.invite_code); }}
-            title={`Invite code: ${group.invite_code} (click to copy)`}
-            style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', color: 'var(--accent)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
-          >
-            🔗 {group.invite_code}
-          </button>
-        )}
+        {/* Group Settings / Invite */}
+        <button
+          onClick={() => setShowSettings(true)}
+          title="Group Settings & Invite"
+          style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', color: 'var(--accent)', fontSize: 14, cursor: 'pointer', transition: 'background 0.2s' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-overlay)'}
+        >
+          ⚙️
+        </button>
       </div>
 
       {/* Bot list hint */}
@@ -284,6 +286,14 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
           </svg>
         </button>
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <GroupSettingsModal
+          group={group}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
     </div>
   );
 }

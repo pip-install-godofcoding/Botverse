@@ -122,4 +122,7 @@ export const useChatStore = create((set, get) => ({
       ? state.groups  // already in list, don't duplicate
       : [group, ...state.groups]
   })),
+  updateGroup: (groupId, updates) => set(state => ({
+    groups: state.groups.map(g => g.id === groupId ? { ...g, ...updates } : g)
+  })),
 }));

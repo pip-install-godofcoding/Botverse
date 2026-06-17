@@ -4,6 +4,16 @@ import { useAuthStore } from '../store/authStore';
 export default function Login() {
   const { signInWithGoogle, setDemoUser } = useAuthStore();
 
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const joinCode = params.get('join');
+    if (joinCode) {
+      localStorage.setItem('pending_join', joinCode);
+      // Optional: remove it from URL so it doesn't look messy
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const features = [
     { emoji: '🥷', label: 'Gojo Satoru' },
     { emoji: '🌟', label: 'Shah Rukh Khan' },

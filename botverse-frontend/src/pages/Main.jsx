@@ -26,9 +26,32 @@ export default function Main() {
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'You';
   const avatarUrl = user?.user_metadata?.avatar_url;
 
-  // Opens a chat/media room
   const openBot = (bot) => setActiveChat({ type: 'bot', bot });
   const openGroup = (group) => setActiveChat({ type: 'group', group });
+
+  // ── Auto-join effect ──
+  React.useEffect(() => {
+    const processJoin = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      let joinCode = urlParams.get('join') || localStorage.getItem('pending_join');
+      
+      if (joinCode && user?.id) {
+        localStorage.removeItem('pending_join');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        try {
+          // Dynamic import to avoid circular dependency if any, but regular import is fine.
+          const { joinGroupDirect } = await import('../lib/supabaseGroups');
+          const { group } = await joinGroupDirect(joinCode, user.id);
+          addGroup(group);
+          setTab('groups');
+          openGroup(group);
+        } catch (err) {
+          console.error('Failed to auto-join:', err);
+        }
+      }
+    };
+    processJoin();
+  }, [user?.id]);
 
   // ── Active screen routing ──
   if (activeChat) {

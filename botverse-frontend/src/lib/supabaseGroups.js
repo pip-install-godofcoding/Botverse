@@ -103,3 +103,12 @@ export async function saveGroupMessageDirect(groupId, { user_id, content, role =
   });
   return { message: Array.isArray(rows) ? rows[0] : rows };
 }
+
+// Update bots in a group
+export async function updateGroupBotsDirect(groupId, bot_ids) {
+  const rows = await sbFetch(`groups?id=eq.${groupId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ bot_ids }),
+  });
+  return { group: Array.isArray(rows) ? rows[0] : rows };
+}
