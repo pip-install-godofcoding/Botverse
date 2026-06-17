@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
 
-const BASE = import.meta.env.VITE_BACKEND_URL || 'https://botverse-production.up.railway.app';
+const BASE = import.meta.env.VITE_BACKEND_URL || 'https://botverse-r3ex.onrender.com';
 
 const OPERATIONS = [
   { id: 'trim',    label: '✂️ Trim',          hint: 'e.g. "trim from 0:10 to 1:45"' },

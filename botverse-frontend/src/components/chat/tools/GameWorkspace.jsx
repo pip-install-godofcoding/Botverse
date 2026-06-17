@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const BASE = import.meta.env.VITE_BACKEND_URL || 'https://botverse-production.up.railway.app';
+const BASE = import.meta.env.VITE_BACKEND_URL || 'https://botverse-r3ex.onrender.com';
 
 function ScoreBoard({ scores, botColor }) {
   const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
