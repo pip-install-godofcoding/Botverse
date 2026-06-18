@@ -228,63 +228,64 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
         </div>
       )}
 
-      {/* Media room embed (Top section) */}
-      {activeMedia === 'youtube' && (
-        <div style={{ flexShrink: 0, width: '100%', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-          <YouTubeRoom groupId={group.id} onClose={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
-        </div>
-      )}
-      {activeMedia === 'spotify' && (
-        <div style={{ flexShrink: 0, width: '100%', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-          <SpotifyRoom groupId={group.id} onClose={() => setActiveMedia(null)} userId={userId} displayName={displayName} />
-        </div>
-      )}
-
-      {/* Messages (Bottom section, scrolls independently) */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px 6px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {messages.map((msg, i) => <MsgBubble key={msg.id || i} msg={msg} />)}
-
-        {/* Bot typing indicator */}
-        {typingBot && (
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginTop: 6, animation: 'fadeIn 0.18s ease' }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--bg-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>
-              {typingBot.emoji || '🤖'}
-            </div>
-            <div style={{ background: 'var(--bg-overlay)', padding: '10px 14px', borderRadius: '3px 16px 16px 16px' }}>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[0, 1, 2].map(i => (
-                  <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: `tydot 1.2s ${i * 0.2}s ease-in-out infinite` }} />
-                ))}
-              </div>
-            </div>
-            <span style={{ color: 'var(--text-muted)', fontSize: 11.5, fontStyle: 'italic' }}>{typingBot.name} is typing...</span>
+      {/* Main Content Area */}
+      <div className={activeMedia ? "media-layout" : ""} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        
+        {/* Left side: Media room embed */}
+        {activeMedia && (
+          <div className="media-panel">
+            {activeMedia === 'youtube' && <YouTubeRoom groupId={group.id} onClose={() => setActiveMedia(null)} userId={userId} displayName={displayName} />}
+            {activeMedia === 'spotify' && <SpotifyRoom groupId={group.id} onClose={() => setActiveMedia(null)} userId={userId} displayName={displayName} />}
           </div>
         )}
-        <div ref={endRef} />
-      </div>
 
-      {/* Input */}
-      <div style={{ background: 'var(--bg-elevated)', borderTop: '1px solid var(--border-subtle)', padding: '10px 12px 12px', display: 'flex', gap: 8, flexShrink: 0 }}>
-        <div style={{ flex: 1, background: 'var(--bg-overlay)', borderRadius: 22, display: 'flex', alignItems: 'center', padding: '0 14px', border: '1px solid var(--border)' }}>
-          <input
-            ref={inputRef}
-            id="group-chat-input"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
-            placeholder="Message group... @BotName to mention"
-            style={{ flex: 1, background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: 15, outline: 'none', padding: '11px 0' }}
-          />
+        {/* Right side / Bottom section: Chat */}
+        <div className={activeMedia ? "chat-panel" : ""} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          
+          {/* Messages */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px 6px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {messages.map((msg, i) => <MsgBubble key={msg.id || i} msg={msg} />)}
+
+            {/* Bot typing indicator */}
+            {typingBot && (
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginTop: 6, animation: 'fadeIn 0.18s ease' }}>
+                <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--bg-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>
+                  {typingBot.emoji || '🤖'}
+                </div>
+                <div style={{ background: 'var(--bg-overlay)', padding: '10px 14px', borderRadius: '3px 16px 16px 16px', display: 'flex', gap: 4 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--text-muted)', animation: 'tydot 1.4s infinite ease-in-out' }} />
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--text-muted)', animation: 'tydot 1.4s infinite ease-in-out 0.2s' }} />
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--text-muted)', animation: 'tydot 1.4s infinite ease-in-out 0.4s' }} />
+                </div>
+              </div>
+            )}
+            <div ref={endRef} style={{ height: 1 }} />
+          </div>
+
+          {/* Input area */}
+          <div style={{ padding: '0 14px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--bg-overlay)', border: '1px solid var(--border)', borderRadius: 20, padding: '6px 6px 6px 16px' }}>
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && send()}
+                placeholder="Message group... @BotName to mention"
+                style={{ flex: 1, background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: 15, outline: 'none' }}
+              />
+              <button
+                onClick={send}
+                disabled={!input.trim()}
+                style={{ width: 36, height: 36, borderRadius: '50%', background: input.trim() ? 'var(--accent)' : 'transparent', border: 'none', color: input.trim() ? '#0a0b14' : 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: input.trim() ? 'pointer' : 'default', transition: 'all 0.2s' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m22 2-7 20-4-9-9-4Z"/>
+                  <path d="M22 2 11 13"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={send}
-          disabled={!input.trim()}
-          style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: input.trim() ? 'var(--accent)' : 'var(--bg-overlay)', color: input.trim() ? '#0a0b14' : 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: input.trim() ? 'pointer' : 'default', transition: 'background 0.2s', flexShrink: 0 }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke={input.trim() ? '#0a0b14' : 'var(--text-muted)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
       </div>
 
       {/* Settings Modal */}
