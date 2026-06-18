@@ -338,7 +338,7 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
         {/* Controls Overlay */}
         <div style={{ position: 'absolute', top: 10, left: 10, right: 10, zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           {/* Members badge */}
-          <div style={{
+          <div className="overlay-members" style={{
             background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
             border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20,
             padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 6,
@@ -350,7 +350,7 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
           </div>
 
           {/* Right buttons */}
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div className="overlay-buttons" style={{ display: 'flex', gap: 6 }}>
             {isHost && (
               <button onClick={() => socket.emit('toggle-lock', { roomId, locked: !isLocked })} style={{ background: isLocked ? 'rgba(255,107,53,0.8)' : 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
                 {isLocked ? '🔒 Locked' : '🔓 Unlocked'}

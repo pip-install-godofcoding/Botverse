@@ -181,6 +181,12 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg-surface);
 }
 
+html, body, #root {
+  height: 100%;
+  height: 100dvh; /* Use dynamic viewport height for mobile browsers */
+  overflow: hidden;
+}
+
 /* ─── MOBILE RESPONSIVENESS ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .workspace-container, .media-layout {
@@ -198,7 +204,7 @@ a { color: inherit; text-decoration: none; }
     max-width: 100% !important;
   }
   .media-panel {
-    flex: 0 0 35vh !important; /* Fixed height for video on mobile */
+    flex: 0 0 40vh !important; /* Slightly taller video on mobile */
     min-height: 250px;
     border-right: none !important;
     border-bottom: 1px solid var(--border-subtle) !important;
@@ -210,6 +216,22 @@ a { color: inherit; text-decoration: none; }
     margin-top: 10px;
     height: 96vh;
     max-height: 96vh;
+  }
+
+  /* Wrap overlay buttons on small screens */
+  .overlay-buttons {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  
+  .overlay-buttons button {
+    padding: 4px 6px !important;
+    font-size: 11px !important;
+  }
+  
+  .overlay-members {
+    font-size: 10px !important;
+    padding: 3px 8px !important;
   }
 }
 
