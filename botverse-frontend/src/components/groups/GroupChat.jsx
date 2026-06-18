@@ -229,7 +229,7 @@ export default function GroupChat({ group, onBack, userId, displayName, avatarUr
       )}
 
       {/* Main Content Area */}
-      <div className={activeMedia ? "media-layout" : ""} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className={activeMedia ? "media-layout" : ""} style={{ flex: 1, display: 'flex', flexDirection: activeMedia ? undefined : 'column', overflow: 'hidden' }}>
         
         {/* Left side: Media room embed */}
         {activeMedia && (
