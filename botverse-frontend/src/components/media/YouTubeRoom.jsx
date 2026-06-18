@@ -63,6 +63,9 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
   const searchTimeout = useRef(null);
   const isSyncingRef = useRef(false);   // Prevents feedback loops
   const currentVideoRef = useRef(null); // Track loaded video to avoid re-creating player
+  const lastTimeRef = useRef();
+  const lastTickRef = useRef(Date.now());
+  const [isLocked, setIsLocked] = useState(false);
 
   const roomId = groupId || 'global';
 
@@ -122,6 +125,7 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
     // Initial room state (when joining an existing room with a video playing)
     socket.on('room-state', (state) => {
       setIsHost(state.isHost);
+      setIsLocked(state.isLocked || false);
       setMembers(state.members || []);
       if (state.videoId) {
         setVideoId(state.videoId);
@@ -143,11 +147,38 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
       }
     });
 
+    // Lock toggled by host
+    socket.on('lock-updated', ({ isLocked: locked }) => {
+      setIsLocked(locked);
+    });
+
+    // Host heartbeat to enforce sync for locked clients
+    socket.on('host-heartbeat', ({ currentTime, playing }) => {
+      // We only care about heartbeats if we are a client in a locked room
+      if (!isLocked) return;
+      
+      if (playerRef.current && playerRef.current.getCurrentTime) {
+        const myTime = playerRef.current.getCurrentTime();
+        const myState = playerRef.current.getPlayerState();
+        
+        const outOfSync = Math.abs(myTime - currentTime) > 2;
+        const wrongState = (playing && myState !== window.YT.PlayerState.PLAYING) || (!playing && myState === window.YT.PlayerState.PLAYING);
+        
+        if (outOfSync || wrongState) {
+          isSyncingRef.current = true;
+          if (outOfSync) playerRef.current.seekTo(currentTime, true);
+          if (playing) playerRef.current.playVideo();
+          else playerRef.current.pauseVideo();
+          setTimeout(() => { isSyncingRef.current = false; }, 500);
+        }
+      }
+    });
+
     // Someone loaded a new video
     socket.on('video-loaded', ({ videoId: vid, loadedBy }) => {
       console.log(`[YT] ${loadedBy} loaded video ${vid}`);
       setVideoId(vid);
-      createOrLoadPlayer(vid);
+      setTimeout(() => createOrLoadPlayer(vid), 50);
     });
 
     // Sync play from another user
@@ -198,6 +229,8 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
     return () => {
       socket.emit('leave-watch', { roomId });
       socket.off('room-state');
+      socket.off('lock-updated');
+      socket.off('host-heartbeat');
       socket.off('video-loaded');
       socket.off('video-play');
       socket.off('video-pause');
@@ -212,7 +245,37 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
         playerRef.current = null;
       }
     };
-  }, [roomId, userId, displayName, createOrLoadPlayer]);
+  }, [roomId, userId, displayName, createOrLoadPlayer, isLocked]);
+
+  // ── Seek Detection & Heartbeat Polling ──────────────────────────────────────
+  useEffect(() => {
+    if (!videoId) return;
+    const interval = setInterval(() => {
+      if (!playerRef.current || !playerRef.current.getCurrentTime) return;
+      
+      const currentTime = playerRef.current.getCurrentTime();
+      const playing = playerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING;
+      
+      // Detect Seeks (Local jump > 1.5s not caused by normal playback)
+      if (lastTimeRef.current !== undefined) {
+         const expectedDiff = playing ? (Date.now() - lastTickRef.current) / 1000 : 0;
+         const actualDiff = currentTime - lastTimeRef.current;
+         
+         // If diff is much larger than expected elapsed time, user seeked!
+         if (!isSyncingRef.current && Math.abs(actualDiff - expectedDiff) > 1.5) {
+           socket.emit('seek', { roomId, seekTo: currentTime });
+         }
+      }
+      lastTimeRef.current = currentTime;
+      lastTickRef.current = Date.now();
+
+      // Host Heartbeat
+      if (isHost) {
+        socket.emit('sync-heartbeat', { roomId, currentTime, playing });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [videoId, isHost, roomId]);
 
   // ── YouTube search with debounce ────────────────────────────────────────────
   const handleSearchChange = (q) => {
@@ -236,7 +299,7 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
     setShowSearch(false);
     setSearchResults([]);
     setSearchQuery('');
-    createOrLoadPlayer(id);
+    // Remove local synchronous creation, let video-loaded handle it cleanly
     socket.emit('video-load', { roomId, videoId: id });
   };
 
@@ -288,12 +351,19 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
 
           {/* Right buttons */}
           <div style={{ display: 'flex', gap: 6 }}>
+            {isHost && (
+              <button onClick={() => socket.emit('toggle-lock', { roomId, locked: !isLocked })} style={{ background: isLocked ? 'rgba(255,107,53,0.8)' : 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
+                {isLocked ? '🔒 Locked' : '🔓 Unlocked'}
+              </button>
+            )}
             <button onClick={() => setShowChat(!showChat)} style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
               💬 Chat
             </button>
-            <button onClick={() => setShowSearch(!showSearch)} style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
-              🔍 Search
-            </button>
+            {!(isLocked && !isHost) && (
+              <button onClick={() => setShowSearch(!showSearch)} style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
+                🔍 Search
+              </button>
+            )}
             <button onClick={handleClose} style={{ background: 'rgba(255,0,0,0.6)', border: 'none', color: '#fff', borderRadius: 8, padding: '4px 10px', fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(4px)' }}>
               ✕ Close
             </button>
@@ -341,8 +411,8 @@ export default function YouTubeRoom({ groupId, userId, displayName, onClose, onB
         </div>
       )}
 
-      {/* Search Panel */}
-      {showSearch && (
+      {/* Search Panel (only if host or room is unlocked) */}
+      {showSearch && !(isLocked && !isHost) && (
         <div style={{ background: '#111218', padding: '10px 12px', borderBottom: '1px solid #1a1a25' }}>
           {/* Paste URL */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>

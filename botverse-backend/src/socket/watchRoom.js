@@ -27,7 +27,7 @@ const rooms = new Map(); // roomId → { host, members, videoId, playing, curren
 
 function getRoom(roomId) {
   if (!rooms.has(roomId)) {
-    rooms.set(roomId, { host: null, members: new Map(), videoId: null, playing: false, currentTime: 0 });
+    rooms.set(roomId, { host: null, members: new Map(), videoId: null, playing: false, currentTime: 0, isLocked: false });
   }
   return rooms.get(roomId);
 }
@@ -49,6 +49,7 @@ module.exports = function registerWatchRoom(io) {
         playing: room.playing,
         currentTime: room.currentTime,
         isHost: room.host === socket.id,
+        isLocked: room.isLocked,
       });
 
       // Notify others
@@ -60,6 +61,7 @@ module.exports = function registerWatchRoom(io) {
 
     socket.on('video-load', ({ roomId, videoId }) => {
       const room = getRoom(roomId);
+      if (room.isLocked && room.host !== socket.id) return;
       room.videoId = videoId;
       room.playing = false;
       room.currentTime = 0;
@@ -69,6 +71,7 @@ module.exports = function registerWatchRoom(io) {
 
     socket.on('play', ({ roomId, currentTime }) => {
       const room = getRoom(roomId);
+      if (room.isLocked && room.host !== socket.id) return;
       room.playing = true;
       room.currentTime = currentTime;
       const user = room.members.get(socket.id);
@@ -77,6 +80,7 @@ module.exports = function registerWatchRoom(io) {
 
     socket.on('pause', ({ roomId, currentTime }) => {
       const room = getRoom(roomId);
+      if (room.isLocked && room.host !== socket.id) return;
       room.playing = false;
       room.currentTime = currentTime;
       const user = room.members.get(socket.id);
@@ -85,9 +89,28 @@ module.exports = function registerWatchRoom(io) {
 
     socket.on('seek', ({ roomId, seekTo }) => {
       const room = getRoom(roomId);
+      if (room.isLocked && room.host !== socket.id) return;
       room.currentTime = seekTo;
       const user = room.members.get(socket.id);
       socket.to(`watch:${roomId}`).emit('video-seek', { seekTo, by: user?.displayName });
+    });
+
+    socket.on('toggle-lock', ({ roomId, locked }) => {
+      const room = getRoom(roomId);
+      if (room.host === socket.id) {
+        room.isLocked = locked;
+        io.to(`watch:${roomId}`).emit('lock-updated', { isLocked: locked });
+      }
+    });
+
+    socket.on('sync-heartbeat', ({ roomId, currentTime, playing }) => {
+      const room = getRoom(roomId);
+      if (room.host === socket.id) {
+        room.currentTime = currentTime;
+        room.playing = playing;
+        // Broadcast heartbeat to all other clients to enforce sync
+        socket.to(`watch:${roomId}`).emit('host-heartbeat', { currentTime, playing });
+      }
     });
 
     socket.on('watch-chat', ({ roomId, userId, displayName, text }) => {
